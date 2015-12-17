@@ -1,17 +1,23 @@
 {
   "name": "__name__",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "__Description__",
   "main": "build/__name__.js",
   "directories": {
     "doc": "doc",
-    "test": "test"
+    "test": "test",
+    "example": "usage"
   },
   "devDependencies": {
     "apage": "latest",
     "coffee-script": "latest",
     "nodemon": "latest"
   },
+  "dependencies": {
+  },
+  "keywords": [
+    "CoffeeScript"
+  ],
   "scripts": {
     "hi": "open .; open index.html; open test/run-test.html; subl .",
     "make": "node bin/akaybe-build",
@@ -22,9 +28,6 @@
     "type": "git",
     "url": "git+https://github.com/richplastow/__name__.git"
   },
-  "keywords": [
-    "CoffeeScript"
-  ],
   "author": "Rich Plastow <rich@richplastow.com> (http://richplastow.com/)",
   "license": "MIT",
   "bugs": {

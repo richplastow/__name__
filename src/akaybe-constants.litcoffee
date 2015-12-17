@@ -4,7 +4,7 @@ Akaybe Constants
 #### Define the core Akaybe constants
 
 Akaybe’s constants are visible to all code defined in ‘src/’ and ‘test/’, but 
-are hidden from code defined elsewhere in the app. 
+hidden from code defined elsewhere in the app. 
 
 
 
@@ -17,6 +17,7 @@ make the source code less verbose: `ªO == typeof x` vs `'object' == typeof x`.
 
     ªA = 'array'
     ªB = 'boolean'
+    ªD = 'document'
     ªE = 'error'
     ªF = 'function'
     ªN = 'number'
@@ -27,4 +28,6 @@ make the source code less verbose: `ªO == typeof x` vs `'object' == typeof x`.
     ªX = 'null'
 
 
+
+    ;
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-/*! akaybe-build 0.0.6 //// MIT Licence //// http://akaybe.richplastow.com/ */
+/*! akaybe-build 0.0.10 //// MIT Licence //// http://akaybe.richplastow.com/ */
 
 !function (root) { 'use strict';
 
 
     //// Define constants.
     var C     = 'akaybe-build'
-      , V     = '0.0.6'
+      , V     = '0.0.10'
 
 
     //// Load Node modules.
@@ -39,7 +39,7 @@
       , doDot = new RegExp(
             'nodemon] starting `echo "|' // normal startup
           + 'nodemon] restarting due to changes...|' // normal restart
-          + 'nodemon] clean exit - waiting for changes' // normal restart
+          + 'nodemon] clean exit - waiting for changes|' // normal restart
         )
 
 
@@ -222,13 +222,27 @@
 
     //// Concatenate and compile the CoffeeScript, and save the JavaScript file.
       + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
-      + 'src/*.litcoffee '
+      + 'src/**/*.litcoffee src/*.litcoffee '
+      + ' 2> /dev/null' // suppress `cat` warnings
       + '| '      // pipe concatenated CoffeeScript into `coffee`
       + 'coffee'  // the CoffeeScript compiler
+      + ' -b'     // --bare      we'll add our own top-level function wrapper
       + ' -s'     // --stdio     listen for and compile scripts over stdio
       + ' -l'     // --literate  treat stdio as litcoffee
        // + ' -m'     // --map       generate '.js.map' source map files @todo
       + ' -c'     // --compile   compile to JavaScript, save as .js file
+
+    //// Add a top-level function wrapper, to reference global scope. 
+      + ' | '     // pipe compiled JavaScript into a sed prepend
+      + 'sed \'2i\\\n(function(ªG) {\'' // argument `ªG` receives global scope
+      + ' | '     // pipe compiled JavaScript into a sed append
+      + 'sed \'$a\\\n}).call(this,this);\n\'' // second `this` passes global scope
+
+    //// Concatenate vendor JavaScript files.
+      + ' | '     // pipe it to `cat`
+      + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
+      + 'src/vendor/*.js '
+      + ' 2> /dev/null' // suppress `cat` warnings
       + ' > '     // write to file, replace if pre-existing, create if missing
       + 'build/' + pkg.name + '.js'
 
@@ -243,12 +257,26 @@
       + ' \\n'    // newline after the `ªC` and `ªV` vars
       + '" | '    // end the string, and pipe it to `cat`
       + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
-      + 'src/*.litcoffee test/*.litcoffee '
+      + 'src/**/*.litcoffee src/*.litcoffee test/*.litcoffee '
+      + ' 2> /dev/null' // suppress `cat` warnings
       + '| '      // pipe concatenated CoffeeScript into `coffee`
       + 'coffee'  // the CoffeeScript compiler
+      + ' -b'     // --bare      we'll add our own top-level function wrapper
       + ' -s'     // --stdio     listen for and compile scripts over stdio
       + ' -l'     // --literate  treat stdio as litcoffee
       + ' -c'     // --compile   compile to JavaScript, save as .js file
+
+    //// Add a top-level function wrapper, to reference global scope. 
+      + ' | '     // pipe compiled JavaScript into a sed prepend
+      + 'sed \'2i\\\n(function(ªG) {\'' // argument `ªG` receives global scope
+      + ' | '     // pipe compiled JavaScript into a sed append
+      + 'sed \'$a\\\n}).call(this,this);\n\'' // second `this` passes global scope
+
+    //// Concatenate vendor JavaScript files.
+      + ' | '     // pipe it to `cat`
+      + 'cat - '  // `cat` accepts piped text unix.stackexchange.com/a/16364
+      + 'src/vendor/*.js '
+      + ' 2> /dev/null' // suppress `cat` warnings
       + ' > '     // write to file, replace if pre-existing, create if missing
       + 'build/test/' + pkg.name + '-with-test.js'
     ;
@@ -276,10 +304,17 @@
           + '| '      // pipe concatenated CoffeeScript into `coffee`
 
           + 'coffee'  // the CoffeeScript compiler
+          + ' -b'     // --bare      we'll add our own top-level function wrapper
           + ' -s'     // --stdio     listen for and compile scripts over stdio
           + ' -l'     // --literate  treat stdio as litcoffee
        // + ' -m'     // --map       generate '.js.map' source map files @todo
           + ' -c'     // --compile   compile to JavaScript, save as .js file
+
+        //// Add a top-level function wrapper, to reference global scope. 
+          + ' | '     // pipe compiled JavaScript into a sed prepend
+          + 'sed \'2i\\\n(function(ªG) {\'' // argument `ªG` receives global scope
+          + ' | '     // pipe compiled JavaScript into a sed append
+          + 'sed \'$a\\\n}).call(this,this);\n\'' // second `this` passes global scope
           + ' > '     // write to file, replace pre-existing, create if missing
           + 'build/"${f%.litcoffee}.js"' // rename stackoverflow.com/a/1225236
 

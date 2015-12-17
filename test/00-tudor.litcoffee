@@ -194,8 +194,8 @@ Run the test and return the result.
 Initialize the output array, as well as `mock` and the page pass/fail tallies. 
 
         pge = []
-        mock = null
-        pgePass = pgeFail = 0
+        mock = []
+        pgePass = pgeFail = mockFail = 0
 
         for article in @articles
           art = []
@@ -209,7 +209,10 @@ Initialize the output array, as well as `mock` and the page pass/fail tallies.
               switch ªtype job
                 when ªF # a mock-modifier
                   try mock = job.apply @, mock catch e then error = e.message
-                  if error then sec.push @formatMockModifierError job, error
+                  if error
+                    mockFail++
+                    secFail++ #@todo does this interfere with proper pass/fail tally?
+                    sec.push @formatMockModifierError job, error
                 when ªA # in the form `[ runner, heading, expect, actual ]`
                   [ runner, heading, expect, actual ] = job # dereference
                   result = runner expect, actual, mock # run the test
@@ -240,6 +243,8 @@ Generate a page summary message.
             "#{@cross} FAILED #{pgeFail}/#{pgePass + pgeFail}"
           else
             "#{@tick} Passed #{pgePass}/#{pgePass + pgeFail}"
+          if mockFail
+            summary = "\n#{@cross} (MOCK FAILS)"
 
 Return the result as a string, with summary at the start and end. 
 
@@ -348,7 +353,7 @@ Escape a string for display, depending on the current `format` option.
 An assertion-runner which expects `actual()` to throw an exception. 
 
       throw:
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try actual.apply @, mock catch e then error = e
           if ! error
@@ -363,7 +368,7 @@ An assertion-runner which expects `actual()` to throw an exception.
 An assertion-runner which expects `actual()` and `expect` to be equal. 
 
       equal: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error
@@ -381,7 +386,7 @@ An assertion-runner which expects `actual()` and `expect` to be equal.
 An assertion-runner which expects `ªtype( actual() )` and `expect` to be equal. 
 
       is: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error
@@ -397,7 +402,7 @@ An assertion-runner where `expect` is a regexp, or an object containing a
 `test()` method. 
 
       match: 
-        runner: (expect, actual, mock) ->
+        runner: (expect, actual, mock=[]) ->
           error = false
           try result = actual.apply @, mock catch e then error = e
           if error
@@ -432,11 +437,12 @@ Create an instance of `Tudor`, to add assertions to.
       format: if ªO == typeof window then 'html' else 'plain'
 
 
-Expose `todor`’s `do()` function as a module method, so that any consumer of 
-this module can run its assertions. In Node, for example:  
-`require('foo').runTest();`
+Expose Tudor’s `do()` function as a module method, so that any consumer of 
+this module can run its assertions. In Node.js, for example:  
+`require('__name__').runTest();`
 
-    Main.runTest = tudor.do
+    __Name__.runTest = tudor.do
+    ;
 
 
 

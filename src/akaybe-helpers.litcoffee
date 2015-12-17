@@ -15,9 +15,15 @@ but are hidden from code defined elsewhere in the runtime environment.
 
 
 #### `ª()`
-A handy shortcut for `console.log()`. Note [`bind()`](http://goo.gl/66ffgl). 
+A handy shortcut for `console.log()`. Note [`bind()`](http://goo.gl/66ffgl), and
+[unusual IE8/9 behaviour](http://goo.gl/ZmG9Xs). 
 
-    ª = console.log.bind console
+    if ªU == typeof console or ªU == typeof console.log
+      ª = -> # no-op
+    else if ªO == typeof console.log # eg IE8/9
+      ª = Function::bind console.log, console
+    else
+      ª = console.log.bind console
 
 
 
@@ -28,6 +34,16 @@ an accent, use `ªex(c, 'àáäâèéëêìíïîòóöôùúüûñç', 'aaaaeee
 
     ªex = (x, a, b) ->
       if -1 == pos = a.indexOf x then x else b.charAt pos
+
+
+
+
+#### `ªis()`
+Useful for reducing CoffeeScript’s verbose conditional syntax, eg:  
+`if condition then 123 else 456` becomes `ªis condition, 123, 456`. 
+
+    ªis = (c, t=true, f=false) ->
+      if c then t else f
 
 
 
@@ -49,7 +65,21 @@ when the variable being tested does not exist, `typeof foobar` will return
 `undefined`, whereas `ªtype(foobar)` will throw an error. 
 
     ªtype = (x) ->
-      ({}).toString.call(x).match(/\s([a-z|A-Z]+)/)[1].toLowerCase()
+      if null == x then return ªX # prevent `domwindow` in some UAs
+      tx = typeof x
+      if ªU == tx then return ªU # prevent `domwindow` in some UAs
+      if ªS != tx and ! x.nodeName and x.constructor != Array and /function/i.test(''+x)
+        return ªF # IE<=8 http://goo.gl/bTbbov
+      ({}).toString.call(x).match(/\s([a-z0-9]+)/i)[1].toLowerCase()
+
+
+
+
+#### `ªisU()`
+@todo description
+
+    ªisU = (x) ->
+      ªU == typeof x
 
 
 
@@ -63,11 +93,19 @@ Xx optional prefix. @todo description
 
 
 
+#### `ªinsert()`
+Xx. @todo description
+
+    ªinsert = (basis, overlay, offset) ->
+      basis.slice(0, offset) + overlay + basis.slice(offset+overlay.length)
+
+
+
 
 #### `ªredefine()`
-Convert a property to one of XX kinds:
-
 - `'constant'` Enumerable but immutable
+
+Convert a property to one of XX kinds:
 
     ªredefine = (obj, name, value, kind) ->
       switch kind
@@ -77,6 +115,6 @@ Convert a property to one of XX kinds:
           Object.defineProperty obj, name, { value:value, enumerable:false }
 
 
-
+    ;
 
 
